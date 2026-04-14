@@ -1,199 +1,900 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>食材庫存</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>食材庫存小管家</title>
+  <style>
+    :root {
+      --bg: #f3f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --line: #e7ebf1;
+      --navy: #0f172a;
+      --soft-yellow: #f5f0dd;
+      --soft-green: #e3f2ed;
+      --soft-gray: #eef2f7;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      --radius-xl: 22px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
 
-<style>
-body{font-family:-apple-system;margin:0;background:#f5f7fb;}
-.app{max-width:420px;margin:auto;padding:16px;}
-.title{font-size:28px;font-weight:800;margin-bottom:10px;}
-.card{background:#fff;padding:14px;border-radius:16px;margin-bottom:12px;}
-input,select,button{
-width:100%;padding:10px;margin-top:6px;border-radius:10px;border:1px solid #ddd;
-}
-button{background:#111;color:#fff;border:none;font-weight:600;}
-.item{background:#fff;padding:12px;border-radius:12px;margin-bottom:8px;}
-.badge{font-size:12px;padding:4px 8px;border-radius:20px;}
-.green{background:#dcfce7;color:#16a34a;}
-.yellow{background:#fef9c3;color:#ca8a04;}
-.red{background:#fee2e2;color:#dc2626;}
-.stats{display:flex;gap:8px;margin-bottom:10px;}
-.stat{flex:1;background:#fff;padding:10px;border-radius:12px;text-align:center;}
-.chips{display:flex;gap:6px;margin:8px 0;}
-.chip{padding:6px 10px;border-radius:20px;background:#eee;cursor:pointer;}
-.active{background:#111;color:#fff;}
-</style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 14px 16px 110px;
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 14px 14px 12px;
+      margin-bottom: 14px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .fab {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      border-radius: 14px;
+      border: 0;
+      background: #0f172a;
+      color: white;
+      font-size: 24px;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.2);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      line-height: 1;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #334155;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip.active {
+      background: var(--navy);
+      color: white;
+      border-color: var(--navy);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .soft-btn {
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      min-height: 92px;
+    }
+
+    .stat.gray { background: #f3f5f8; }
+    .stat.yellow { background: var(--soft-yellow); }
+    .stat.green { background: var(--soft-green); }
+
+    .stat-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .stat-num {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .panel-label {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .mini-pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      background: white;
+      font-size: 11px;
+      color: #334155;
+    }
+
+    .score {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-top: 2px;
+    }
+
+    .progress-track {
+      margin-top: 12px;
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #d9dee8;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: #1e293b;
+      width: 0%;
+    }
+
+    .note {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .input {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: white;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .segment {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 900;
+      margin: 0 0 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .highlight-box {
+      background: #f5f7fb;
+      border-radius: 16px;
+      min-height: 42px;
+      padding: 12px 12px;
+      color: #64748b;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+    }
+
+    .recipe-card, .item-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 13px;
+      margin-bottom: 10px;
+    }
+
+    .recipe-top, .item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .item-name, .recipe-name {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .meta {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.55;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .fresh { background: #e9f8ef; color: #15803d; }
+    .soon { background: #fff7d6; color: #a16207; }
+    .expired { background: #fee9e7; color: #b91c1c; }
+    .score-badge { background: #eef4f1; color: #0f766e; }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      background: #f3f4f6;
+      color: #334155;
+    }
+
+    .ok { color: #15803d; }
+    .danger { color: #b91c1c; }
+
+    .item-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .action-btn {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #0f172a;
+    }
+
+    .bottom-nav {
+      position: sticky;
+      bottom: 0;
+      background: transparent;
+      padding-top: 4px;
+    }
+
+    .bottom-inner {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      overflow: hidden;
+    }
+
+    .nav-item {
+      text-align: center;
+      padding: 14px 10px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #6b7280;
+    }
+
+    .nav-item.active {
+      color: #0f172a;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 430px;
+      background: white;
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 900;
+      margin: 0 0 12px;
+    }
+
+    .empty {
+      color: #64748b;
+      text-align: center;
+      padding: 18px 10px;
+      font-size: 13px;
+    }
+  </style>
 </head>
-
 <body>
-<div class="app">
+  <main class="app">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">你的冰箱今天如何？</div>
+          <h1 class="title">食材庫存小管家</h1>
+          <div class="subtitle">用手機快速記庫存、看保存期限、直接找能煮的菜。</div>
+        </div>
+        <button class="fab" id="openModalBtn">+</button>
+      </div>
 
-<div class="title">🍱 食材庫存</div>
+      <div class="chips">
+        <span class="chip">本地儲存</span>
+        <span class="chip">手機版 UI</span>
+        <span class="chip">可直接點用</span>
+      </div>
 
-<div class="stats">
-<div class="stat">種類<br><b id="s1">0</b></div>
-<div class="stat">數量<br><b id="s2">0</b></div>
-<div class="stat">快到期<br><b id="s3">0</b></div>
-<div class="stat">過期<br><b id="s4">0</b></div>
-</div>
+      <div class="hero-actions">
+        <button class="soft-btn" id="resetBtn">恢復範例資料</button>
+        <button class="soft-btn" id="clearBtn">清空全部</button>
+      </div>
 
-<div class="card">
-<input id="name" placeholder="食材名稱">
-<input id="qty" type="number" value="1">
-<input id="purchase" type="date">
-<input id="expiry" type="date">
-<select id="location">
-<option>冷藏</option>
-<option>冷凍</option>
-<option>常溫</option>
-</select>
-<button onclick="addItem()">新增</button>
-</div>
+      <div class="stats">
+        <div class="stat gray">
+          <div class="stat-label">種類</div>
+          <div class="stat-num" id="stat-total-types">0</div>
+        </div>
+        <div class="stat yellow">
+          <div class="stat-label">快到期</div>
+          <div class="stat-num" id="stat-soon">0</div>
+        </div>
+        <div class="stat green">
+          <div class="stat-label">建議食譜</div>
+          <div class="stat-num" id="stat-recipes">0</div>
+        </div>
+      </div>
+    </section>
 
-<input id="search" placeholder="搜尋食材">
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-label">冰箱健康分數</div>
+          <div class="score" id="healthScore">100%</div>
+        </div>
+        <div class="mini-pill">合計 <span id="stat-total-qty">0</span> 單位</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="note">分數越高，代表目前浪費風險越低。</div>
+    </section>
 
-<div class="chips">
-<div class="chip active" onclick="setFilter('all',this)">全部</div>
-<div class="chip" onclick="setFilter('冷藏',this)">冷藏</div>
-<div class="chip" onclick="setFilter('冷凍',this)">冷凍</div>
-<div class="chip" onclick="setFilter('常溫',this)">常溫</div>
-</div>
+    <section class="toolbar">
+      <input id="searchInput" class="input" placeholder="搜尋食材名稱" />
+      <div class="segment" id="filterBar">
+        <span class="chip active" data-filter="all">🏠 全部</span>
+        <span class="chip" data-filter="冷藏">🥛 冷藏</span>
+        <span class="chip" data-filter="冷凍">❄️ 冷凍</span>
+        <span class="chip" data-filter="常溫">📦 常溫</span>
+      </div>
+      <div class="segment" id="sortBar">
+        <span class="chip active" data-sort="default">預設</span>
+        <span class="chip" data-sort="expire">快到期</span>
+        <span class="chip" data-sort="new">最新加入</span>
+      </div>
+    </section>
 
-<div class="chips">
-<div class="chip active" onclick="setSort('default',this)">預設</div>
-<div class="chip" onclick="setSort('expire',this)">快到期</div>
-<div class="chip" onclick="setSort('new',this)">最新</div>
-</div>
+    <section class="section-card">
+      <h2 class="section-title">今天先吃這些</h2>
+      <div id="urgentItems" class="highlight-box">今天沒有特別急著要用掉的食材。</div>
+    </section>
 
-<div id="list"></div>
+    <section class="section-card">
+      <h2 class="section-title">立刻能做的料理</h2>
+      <div id="recipes"></div>
+    </section>
 
-<div class="title">🍳 食譜</div>
-<div id="recipes"></div>
+    <section class="section-card">
+      <h2 class="section-title">庫存清單</h2>
+      <div id="items"></div>
+    </section>
 
-</div>
+    <div class="bottom-nav">
+      <div class="bottom-inner">
+        <div class="nav-item active">總覽</div>
+        <div class="nav-item">庫存</div>
+        <div class="nav-item">食譜</div>
+      </div>
+    </div>
+  </main>
 
-<script>
-let items=JSON.parse(localStorage.getItem("data")||"[]");
-let filter="all";
-let sort="default";
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <h3 class="modal-title" id="modalTitle">新增食材</h3>
+      <input id="name" class="input" placeholder="食材名稱，例如：羊肉、蝦子、雞胸肉" />
+      <div class="row" style="margin-top:10px;">
+        <input id="qty" class="input" type="number" min="1" value="1" />
+        <input id="purchase" class="input" type="date" />
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <input id="expiry" class="input" type="date" />
+        <select id="location" class="select">
+          <option value="冷藏">冷藏</option>
+          <option value="冷凍">冷凍</option>
+          <option value="常溫">常溫</option>
+        </select>
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <button class="button secondary" id="cancelBtn">取消</button>
+        <button class="button" id="saveBtn">儲存食材</button>
+      </div>
+    </div>
+  </div>
 
-function save(){localStorage.setItem("data",JSON.stringify(items));}
+  <script>
+    const storageKey = "food-inventory-ui-polished-v1";
 
-function days(d){return Math.floor((new Date(d)-new Date())/86400000);}
+    const demoItems = [
+      { id: 1, name: "雞胸肉", quantity: 2, purchaseDate: "2026-04-14", expiryDate: "2026-04-20", location: "冷藏" },
+      { id: 2, name: "雞蛋", quantity: 5, purchaseDate: "2026-04-14", expiryDate: "2026-04-18", location: "冷藏" },
+      { id: 3, name: "菠菜", quantity: 1, purchaseDate: "2026-04-14", expiryDate: "2026-04-16", location: "冷藏" }
+    ];
 
-function status(d){
-let x=days(d);
-if(x<0)return"red";
-if(x<=2)return"yellow";
-return"green";
-}
+    const ingredientTypeMap = {
+      "雞胸肉": "protein", "雞腿肉": "protein", "雞肉": "protein", "牛肉": "protein", "豬肉": "protein", "羊肉": "protein",
+      "里肌肉": "protein", "絞肉": "protein", "蝦子": "protein", "蝦仁": "protein", "魚": "protein", "鮭魚": "protein", "鯛魚": "protein",
+      "豆腐": "protein", "板豆腐": "protein", "嫩豆腐": "protein",
+      "雞蛋": "egg", "蛋": "egg",
+      "菠菜": "vegetable", "高麗菜": "vegetable", "花椰菜": "vegetable", "青花菜": "vegetable", "白菜": "vegetable", "空心菜": "vegetable",
+      "青江菜": "vegetable", "洋蔥": "vegetable", "番茄": "vegetable", "紅蘿蔔": "vegetable", "胡蘿蔔": "vegetable", "玉米筍": "vegetable",
+      "彩椒": "vegetable", "小黃瓜": "vegetable", "節瓜": "vegetable",
+      "杏鮑菇": "mushroom", "香菇": "mushroom", "鴻喜菇": "mushroom", "金針菇": "mushroom",
+      "白飯": "carb", "飯": "carb", "糙米飯": "carb", "麵": "carb", "義大利麵": "carb", "吐司": "carb", "冬粉": "carb",
+      "牛奶": "dairy", "鮮奶": "dairy", "起司": "dairy", "奶油": "dairy",
+      "蒜頭": "aromatic", "蒜": "aromatic", "蔥": "aromatic", "薑": "aromatic"
+    };
 
-function addItem(){
-let name=nameInput.value;
-let qty=qtyInput.value;
-let purchase=purchaseInput.value;
-let expiry=expiryInput.value;
-let location=locationInput.value;
+    let items = loadItems();
+    let currentFilter = "all";
+    let currentSearch = "";
+    let currentSort = "default";
+    let editingId = null;
 
-if(!name||!expiry)return;
+    function loadItems() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        return saved ? JSON.parse(saved) : demoItems;
+      } catch {
+        return demoItems;
+      }
+    }
 
-items.unshift({id:Date.now(),name,qty,purchase,expiry,location});
-save();render();
-}
+    function saveItems() {
+      localStorage.setItem(storageKey, JSON.stringify(items));
+    }
 
-function remove(id){
-items=items.filter(i=>i.id!=id);
-save();render();
-}
+    function daysUntil(dateStr) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(dateStr);
+      target.setHours(0, 0, 0, 0);
+      return Math.round((target - today) / (1000 * 60 * 60 * 24));
+    }
 
-function edit(id){
-let i=items.find(x=>x.id==id);
-nameInput.value=i.name;
-qtyInput.value=i.qty;
-purchaseInput.value=i.purchase;
-expiryInput.value=i.expiry;
-locationInput.value=i.location;
-remove(id);
-}
+    function getStatus(expiryDate) {
+      const diff = daysUntil(expiryDate);
+      if (diff < 0) return { text: "已過期", className: "expired" };
+      if (diff <= 2) return { text: "快到期", className: "soon" };
+      return { text: "新鮮", className: "fresh" };
+    }
 
-function setFilter(f,el){
-filter=f;
-document.querySelectorAll(".chips .chip").forEach(c=>c.classList.remove("active"));
-el.classList.add("active");
-render();
-}
+    function detectIngredientType(name) {
+      if (ingredientTypeMap[name]) return ingredientTypeMap[name];
+      if (name.includes("雞") || name.includes("牛") || name.includes("豬") || name.includes("羊") || name.includes("蝦") || name.includes("魚")) return "protein";
+      if (name.includes("蛋")) return "egg";
+      if (name.includes("菇")) return "mushroom";
+      if (name.includes("菜") || name.includes("瓜") || name.includes("椒") || name.includes("蘿蔔") || name.includes("洋蔥") || name.includes("番茄")) return "vegetable";
+      if (name.includes("飯") || name.includes("麵") || name.includes("吐司") || name.includes("冬粉")) return "carb";
+      if (name.includes("奶") || name.includes("起司")) return "dairy";
+      if (name.includes("蒜") || name.includes("蔥") || name.includes("薑")) return "aromatic";
+      return "other";
+    }
 
-function setSort(s,el){
-sort=s;
-document.querySelectorAll(".chips:nth-of-type(2) .chip").forEach(c=>c.classList.remove("active"));
-el.classList.add("active");
-render();
-}
+    function getItemsByType(type) {
+      return items.filter((item) => detectIngredientType(item.name) === type);
+    }
 
-function getType(n){
-if(n.includes("肉")||n.includes("雞")||n.includes("牛")||n.includes("豬")||n.includes("羊")||n.includes("蝦")||n.includes("魚"))return"p";
-if(n.includes("蛋"))return"e";
-if(n.includes("菜")||n.includes("瓜"))return"v";
-return"o";
-}
+    function getUrgentScore(names) {
+      let score = 0;
+      names.forEach((name) => {
+        const found = items.find((item) => item.name === name);
+        if (found && daysUntil(found.expiryDate) <= 2) score += 1;
+      });
+      return score;
+    }
 
-function renderRecipes(){
-let r=[];
-items.forEach(i=>{
-if(getType(i.name)=="p"){
-r.push("香煎"+i.name);
-r.push(i.name+"炒蛋");
-r.push(i.name+"炒青菜");
-}
-});
-r=[...new Set(r)];
-recipes.innerHTML=r.map(x=>`<div class=item>${x}</div>`).join("");
-}
+    function addRecipeResult(results, name, matched, missing, tags = []) {
+      if (matched.length === 0) return;
+      results.push({
+        name,
+        matched,
+        missing,
+        tags,
+        score: matched.length * 10 + getUrgentScore(matched) * 20 - missing.length * 3
+      });
+    }
 
-function render(){
-let listData=[...items];
+    function getRecommendedRecipes() {
+      const proteins = getItemsByType("protein");
+      const eggs = getItemsByType("egg");
+      const vegetables = getItemsByType("vegetable");
+      const mushrooms = getItemsByType("mushroom");
+      const carbs = getItemsByType("carb");
+      const dairies = getItemsByType("dairy");
+      const aromatics = getItemsByType("aromatic");
+      const results = [];
 
-if(filter!="all"){
-listData=listData.filter(i=>i.location==filter);
-}
+      proteins.forEach((p) => {
+        addRecipeResult(results, `${p.name}炒蛋`, [p.name, ...(eggs[0] ? [eggs[0].name] : [])], eggs[0] ? [] : ["雞蛋"], ["高蛋白", "快手"]);
+        addRecipeResult(results, `香煎${p.name}`, [p.name], [], ["簡單", "單品"]);
+        addRecipeResult(results, `${p.name}炒青菜`, [p.name, ...(vegetables[0] ? [vegetables[0].name] : [])], vegetables[0] ? [] : ["蔬菜"], ["均衡", "家常"]);
+        addRecipeResult(results, `${p.name}炒菇`, [p.name, ...(mushrooms[0] ? [mushrooms[0].name] : [])], mushrooms[0] ? [] : ["菇類"], ["鮮香", "家常"]);
+        addRecipeResult(results, `${p.name}燴飯`, [p.name, ...(carbs[0] ? [carbs[0].name] : [])], carbs[0] ? [] : ["白飯"], ["主食", "飽足"]);
+        addRecipeResult(results, `奶香${p.name}`, [p.name, ...(dairies[0] ? [dairies[0].name] : [])], dairies[0] ? [] : ["牛奶"], ["濃郁", "變化版"]);
+      });
 
-let q=search.value.toLowerCase();
-if(q){
-listData=listData.filter(i=>i.name.toLowerCase().includes(q));
-}
+      if (eggs.length > 0) {
+        addRecipeResult(results, `${vegetables[0] ? vegetables[0].name : "青菜"}炒蛋`, [eggs[0].name, ...(vegetables[0] ? [vegetables[0].name] : [])], vegetables[0] ? [] : ["蔬菜"], ["快手", "便當菜"]);
+        addRecipeResult(results, `${mushrooms[0] ? mushrooms[0].name : "菇類"}歐姆蛋`, [eggs[0].name, ...(mushrooms[0] ? [mushrooms[0].name] : [])], mushrooms[0] ? [] : ["菇類"], ["早餐", "軟嫩"]);
+      }
 
-if(sort=="expire"){
-listData.sort((a,b)=>days(a.expiry)-days(b.expiry));
-}
-if(sort=="new"){
-listData.sort((a,b)=>b.id-a.id);
-}
+      if (proteins.length > 0) {
+        addRecipeResult(results, `蒜香${proteins[0].name}`, [proteins[0].name, ...(aromatics[0] ? [aromatics[0].name] : [])], aromatics[0] ? [] : ["蒜頭"], ["香氣", "下飯"]);
+      }
 
-list.innerHTML=listData.map(i=>`
-<div class=item>
-<b>${i.name} x ${i.qty}</b><br>
-購買:${i.purchase||"-"}<br>
-到期:${i.expiry}<br>
-位置:${i.location}
-<div class="badge ${status(i.expiry)}">${days(i.expiry)}天</div>
-<button onclick="edit(${i.id})">編輯</button>
-<button onclick="remove(${i.id})">刪除</button>
-</div>`).join("");
+      const map = new Map();
+      results.forEach((r) => {
+        if (!map.has(r.name) || map.get(r.name).score < r.score) map.set(r.name, r);
+      });
 
-s1.innerText=items.length;
-s2.innerText=items.reduce((a,b)=>a+Number(b.qty),0);
-s3.innerText=items.filter(i=>days(i.expiry)<=2&&days(i.expiry)>=0).length;
-s4.innerText=items.filter(i=>days(i.expiry)<0).length;
+      return Array.from(map.values())
+        .filter((r) => r.matched.length > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+    }
 
-renderRecipes();
-}
+    function openModal(editItem = null) {
+      editingId = editItem ? editItem.id : null;
+      document.getElementById("modalTitle").textContent = editItem ? "編輯食材" : "新增食材";
+      document.getElementById("name").value = editItem ? editItem.name : "";
+      document.getElementById("qty").value = editItem ? editItem.quantity : 1;
+      document.getElementById("purchase").value = editItem ? (editItem.purchaseDate || "") : "";
+      document.getElementById("expiry").value = editItem ? editItem.expiryDate : "";
+      document.getElementById("location").value = editItem ? editItem.location : "冷藏";
+      document.getElementById("modalBackdrop").classList.add("show");
+    }
 
-search.oninput=render;
+    function closeModal() {
+      document.getElementById("modalBackdrop").classList.remove("show");
+      editingId = null;
+    }
 
-render();
-</script>
+    function saveForm() {
+      const name = document.getElementById("name").value.trim();
+      const qty = Number(document.getElementById("qty").value || 1);
+      const purchaseDate = document.getElementById("purchase").value;
+      const expiryDate = document.getElementById("expiry").value;
+      const location = document.getElementById("location").value;
+      if (!name || !expiryDate) return;
 
+      if (editingId) {
+        items = items.map((item) => item.id === editingId ? { ...item, name, quantity: qty, purchaseDate, expiryDate, location } : item);
+      } else {
+        items.unshift({ id: Date.now(), name, quantity: qty, purchaseDate, expiryDate, location });
+      }
+
+      saveItems();
+      closeModal();
+      render();
+    }
+
+    function removeItem(id) {
+      items = items.filter((item) => item.id !== id);
+      saveItems();
+      render();
+    }
+
+    function editItem(id) {
+      const found = items.find((item) => item.id === id);
+      if (!found) return;
+      openModal(found);
+    }
+
+    function setFilter(type) {
+      currentFilter = type;
+      document.querySelectorAll("#filterBar .chip").forEach((el) => {
+        el.classList.remove("active");
+        if (el.dataset.filter === type) el.classList.add("active");
+      });
+      renderItems();
+    }
+
+    function setSort(type) {
+      currentSort = type;
+      document.querySelectorAll("#sortBar .chip").forEach((el) => {
+        el.classList.remove("active");
+        if (el.dataset.sort === type) el.classList.add("active");
+      });
+      renderItems();
+    }
+
+    function getFilteredItems() {
+      let filtered = [...items];
+      if (currentFilter !== "all") filtered = filtered.filter((item) => item.location === currentFilter);
+      if (currentSearch.trim()) {
+        const keyword = currentSearch.trim().toLowerCase();
+        filtered = filtered.filter((item) => item.name.toLowerCase().includes(keyword));
+      }
+      if (currentSort === "expire") filtered.sort((a, b) => daysUntil(a.expiryDate) - daysUntil(b.expiryDate));
+      if (currentSort === "new") filtered.sort((a, b) => b.id - a.id);
+      return filtered;
+    }
+
+    function renderStats() {
+      const totalTypes = items.length;
+      const totalQty = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+      const soonCount = items.filter((item) => { const d = daysUntil(item.expiryDate); return d >= 0 && d <= 2; }).length;
+      const expiredCount = items.filter((item) => daysUntil(item.expiryDate) < 0).length;
+      const recipesCount = getRecommendedRecipes().length;
+      const health = Math.max(0, Math.min(100, 100 - expiredCount * 25 - soonCount * 12));
+
+      document.getElementById("stat-total-types").textContent = totalTypes;
+      document.getElementById("stat-total-qty").textContent = totalQty;
+      document.getElementById("stat-soon").textContent = soonCount;
+      document.getElementById("stat-recipes").textContent = recipesCount;
+      document.getElementById("healthScore").textContent = `${health}%`;
+      document.getElementById("progressBar").style.width = `${health}%`;
+    }
+
+    function renderUrgent() {
+      const urgent = items.filter((item) => {
+        const d = daysUntil(item.expiryDate);
+        return d >= 0 && d <= 2;
+      }).sort((a, b) => daysUntil(a.expiryDate) - daysUntil(b.expiryDate));
+
+      const box = document.getElementById("urgentItems");
+      if (!urgent.length) {
+        box.textContent = "今天沒有特別急著要用掉的食材。";
+        return;
+      }
+
+      box.innerHTML = urgent.map((item) => `${item.name}（${daysUntil(item.expiryDate) === 0 ? "今天到期" : `${daysUntil(item.expiryDate)} 天內到期`}）`).join("、");
+    }
+
+    function renderItems() {
+      const wrap = document.getElementById("items");
+      const filteredItems = getFilteredItems();
+      const typeLabelMap = {
+        protein: "蛋白質", egg: "蛋類", vegetable: "蔬菜", mushroom: "菇類", carb: "主食", dairy: "奶類", aromatic: "辛香料", other: "其他"
+      };
+
+      if (!filteredItems.length) {
+        wrap.innerHTML = '<div class="empty">沒有符合的食材</div>';
+        return;
+      }
+
+      wrap.innerHTML = filteredItems.map((item) => {
+        const status = getStatus(item.expiryDate);
+        const type = detectIngredientType(item.name);
+        return `
+          <div class="item-card">
+            <div class="item-top">
+              <div>
+                <div class="item-name">${item.name} × ${item.quantity}</div>
+                <div class="meta">
+                  購買：${item.purchaseDate || "未填"}<br>
+                  到期：${item.expiryDate}<br>
+                  位置：${item.location} · 分類：${typeLabelMap[type]}
+                </div>
+              </div>
+              <div class="badge ${status.className}">${status.text}</div>
+            </div>
+            <div class="item-actions">
+              <button class="action-btn" onclick="editItem(${item.id})">編輯</button>
+              <button class="action-btn" onclick="removeItem(${item.id})">刪除</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRecipes() {
+      const wrap = document.getElementById("recipes");
+      const recipes = getRecommendedRecipes();
+      if (!recipes.length) {
+        wrap.innerHTML = '<div class="empty">目前沒有可參考食譜</div>';
+        return;
+      }
+
+      wrap.innerHTML = recipes.map((recipe) => `
+        <div class="recipe-card">
+          <div class="recipe-top">
+            <div class="recipe-name">${recipe.name}</div>
+            <div class="badge score-badge">分數 ${recipe.score}</div>
+          </div>
+          <div class="tag-row">
+            <span class="tag ok">已有：${recipe.matched.length ? recipe.matched.join("、") : "無"}</span>
+            <span class="tag ${recipe.missing.length ? "danger" : "ok"}">缺少：${recipe.missing.length ? recipe.missing.join("、") : "無"}</span>
+            ${recipe.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function render() {
+      renderStats();
+      renderUrgent();
+      renderItems();
+      renderRecipes();
+    }
+
+    document.getElementById("openModalBtn").addEventListener("click", () => openModal());
+    document.getElementById("cancelBtn").addEventListener("click", closeModal);
+    document.getElementById("saveBtn").addEventListener("click", saveForm);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      items = [...demoItems];
+      saveItems();
+      currentSearch = "";
+      document.getElementById("searchInput").value = "";
+      currentFilter = "all";
+      currentSort = "default";
+      document.querySelectorAll("#filterBar .chip").forEach((el) => {
+        el.classList.remove("active");
+        if (el.dataset.filter === "all") el.classList.add("active");
+      });
+      document.querySelectorAll("#sortBar .chip").forEach((el) => {
+        el.classList.remove("active");
+        if (el.dataset.sort === "default") el.classList.add("active");
+      });
+      render();
+    });
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      items = [];
+      saveItems();
+      render();
+    });
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      currentSearch = e.target.value;
+      renderItems();
+    });
+
+    document.querySelectorAll("#filterBar .chip").forEach((chip) => {
+      chip.addEventListener("click", () => setFilter(chip.dataset.filter));
+    });
+    document.querySelectorAll("#sortBar .chip").forEach((chip) => {
+      chip.addEventListener("click", () => setSort(chip.dataset.sort));
+    });
+    document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "modalBackdrop") closeModal();
+    });
+
+    render();
+  </script>
 </body>
 </html>
