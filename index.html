@@ -1,21 +1,17 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>食材庫存App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食材庫存</title>
 
 <style>
-body{
-  font-family:-apple-system;
-  margin:0;
-  background:#f5f7fb;
-}
+body{font-family:-apple-system;margin:0;background:#f5f7fb;}
 .app{max-width:420px;margin:auto;padding:16px;}
 .title{font-size:28px;font-weight:800;margin-bottom:10px;}
 .card{background:#fff;padding:14px;border-radius:16px;margin-bottom:12px;}
 input,select,button{
-  width:100%;padding:10px;margin-top:6px;border-radius:10px;border:1px solid #ddd;
+width:100%;padding:10px;margin-top:6px;border-radius:10px;border:1px solid #ddd;
 }
 button{background:#111;color:#fff;border:none;font-weight:600;}
 .item{background:#fff;padding:12px;border-radius:12px;margin-bottom:8px;}
@@ -23,6 +19,11 @@ button{background:#111;color:#fff;border:none;font-weight:600;}
 .green{background:#dcfce7;color:#16a34a;}
 .yellow{background:#fef9c3;color:#ca8a04;}
 .red{background:#fee2e2;color:#dc2626;}
+.stats{display:flex;gap:8px;margin-bottom:10px;}
+.stat{flex:1;background:#fff;padding:10px;border-radius:12px;text-align:center;}
+.chips{display:flex;gap:6px;margin:8px 0;}
+.chip{padding:6px 10px;border-radius:20px;background:#eee;cursor:pointer;}
+.active{background:#111;color:#fff;}
 </style>
 </head>
 
@@ -30,6 +31,13 @@ button{background:#111;color:#fff;border:none;font-weight:600;}
 <div class="app">
 
 <div class="title">🍱 食材庫存</div>
+
+<div class="stats">
+<div class="stat">種類<br><b id="s1">0</b></div>
+<div class="stat">數量<br><b id="s2">0</b></div>
+<div class="stat">快到期<br><b id="s3">0</b></div>
+<div class="stat">過期<br><b id="s4">0</b></div>
+</div>
 
 <div class="card">
 <input id="name" placeholder="食材名稱">
@@ -44,107 +52,145 @@ button{background:#111;color:#fff;border:none;font-weight:600;}
 <button onclick="addItem()">新增</button>
 </div>
 
+<input id="search" placeholder="搜尋食材">
+
+<div class="chips">
+<div class="chip active" onclick="setFilter('all',this)">全部</div>
+<div class="chip" onclick="setFilter('冷藏',this)">冷藏</div>
+<div class="chip" onclick="setFilter('冷凍',this)">冷凍</div>
+<div class="chip" onclick="setFilter('常溫',this)">常溫</div>
+</div>
+
+<div class="chips">
+<div class="chip active" onclick="setSort('default',this)">預設</div>
+<div class="chip" onclick="setSort('expire',this)">快到期</div>
+<div class="chip" onclick="setSort('new',this)">最新</div>
+</div>
+
 <div id="list"></div>
 
-<div class="title">🍳 推薦食譜</div>
+<div class="title">🍳 食譜</div>
 <div id="recipes"></div>
-
-<div class="card">
-<button onclick="aiRecommend()">✨ AI推薦（進階）</button>
-<div id="aiResult"></div>
-</div>
 
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem("data")||"[]");
+let items=JSON.parse(localStorage.getItem("data")||"[]");
+let filter="all";
+let sort="default";
 
-function save(){
-localStorage.setItem("data",JSON.stringify(items));
-}
+function save(){localStorage.setItem("data",JSON.stringify(items));}
 
-function days(exp){
-return Math.floor((new Date(exp)-new Date())/(1000*60*60*24));
-}
+function days(d){return Math.floor((new Date(d)-new Date())/86400000);}
 
-function status(exp){
-let d=days(exp);
-if(d<0) return "red";
-if(d<=2) return "yellow";
-return "green";
+function status(d){
+let x=days(d);
+if(x<0)return"red";
+if(x<=2)return"yellow";
+return"green";
 }
 
 function addItem(){
-let name=document.getElementById("name").value;
-let qty=document.getElementById("qty").value;
-let purchase=document.getElementById("purchase").value;
-let expiry=document.getElementById("expiry").value;
-let location=document.getElementById("location").value;
+let name=nameInput.value;
+let qty=qtyInput.value;
+let purchase=purchaseInput.value;
+let expiry=expiryInput.value;
+let location=locationInput.value;
 
 if(!name||!expiry)return;
 
-items.push({id:Date.now(),name,qty,purchase,expiry,location});
-save();
-render();
+items.unshift({id:Date.now(),name,qty,purchase,expiry,location});
+save();render();
 }
 
 function remove(id){
-items=items.filter(i=>i.id!==id);
-save();
+items=items.filter(i=>i.id!=id);
+save();render();
+}
+
+function edit(id){
+let i=items.find(x=>x.id==id);
+nameInput.value=i.name;
+qtyInput.value=i.qty;
+purchaseInput.value=i.purchase;
+expiryInput.value=i.expiry;
+locationInput.value=i.location;
+remove(id);
+}
+
+function setFilter(f,el){
+filter=f;
+document.querySelectorAll(".chips .chip").forEach(c=>c.classList.remove("active"));
+el.classList.add("active");
 render();
 }
 
-function render(){
-let list=document.getElementById("list");
+function setSort(s,el){
+sort=s;
+document.querySelectorAll(".chips:nth-of-type(2) .chip").forEach(c=>c.classList.remove("active"));
+el.classList.add("active");
+render();
+}
 
-list.innerHTML=items.map(i=>`
-<div class="item">
+function getType(n){
+if(n.includes("肉")||n.includes("雞")||n.includes("牛")||n.includes("豬")||n.includes("羊")||n.includes("蝦")||n.includes("魚"))return"p";
+if(n.includes("蛋"))return"e";
+if(n.includes("菜")||n.includes("瓜"))return"v";
+return"o";
+}
+
+function renderRecipes(){
+let r=[];
+items.forEach(i=>{
+if(getType(i.name)=="p"){
+r.push("香煎"+i.name);
+r.push(i.name+"炒蛋");
+r.push(i.name+"炒青菜");
+}
+});
+r=[...new Set(r)];
+recipes.innerHTML=r.map(x=>`<div class=item>${x}</div>`).join("");
+}
+
+function render(){
+let listData=[...items];
+
+if(filter!="all"){
+listData=listData.filter(i=>i.location==filter);
+}
+
+let q=search.value.toLowerCase();
+if(q){
+listData=listData.filter(i=>i.name.toLowerCase().includes(q));
+}
+
+if(sort=="expire"){
+listData.sort((a,b)=>days(a.expiry)-days(b.expiry));
+}
+if(sort=="new"){
+listData.sort((a,b)=>b.id-a.id);
+}
+
+list.innerHTML=listData.map(i=>`
+<div class=item>
 <b>${i.name} x ${i.qty}</b><br>
 購買:${i.purchase||"-"}<br>
 到期:${i.expiry}<br>
 位置:${i.location}
 <div class="badge ${status(i.expiry)}">${days(i.expiry)}天</div>
+<button onclick="edit(${i.id})">編輯</button>
 <button onclick="remove(${i.id})">刪除</button>
-</div>
-`).join("");
+</div>`).join("");
+
+s1.innerText=items.length;
+s2.innerText=items.reduce((a,b)=>a+Number(b.qty),0);
+s3.innerText=items.filter(i=>days(i.expiry)<=2&&days(i.expiry)>=0).length;
+s4.innerText=items.filter(i=>days(i.expiry)<0).length;
 
 renderRecipes();
 }
 
-function getType(name){
-if(name.includes("肉")||name.includes("雞")||name.includes("牛")||name.includes("豬")||name.includes("羊")||name.includes("蝦")||name.includes("魚")) return "protein";
-if(name.includes("蛋")) return "egg";
-if(name.includes("菜")||name.includes("瓜")) return "veg";
-return "other";
-}
-
-function renderRecipes(){
-let recipes=[];
-let proteins=items.filter(i=>getType(i.name)=="protein");
-let eggs=items.filter(i=>getType(i.name)=="egg");
-let veg=items.filter(i=>getType(i.name)=="veg");
-
-proteins.forEach(p=>{
-recipes.push(p.name+"炒蛋");
-recipes.push("香煎"+p.name);
-recipes.push(p.name+"炒青菜");
-});
-
-if(eggs.length&&veg.length){
-recipes.push(veg[0].name+"炒蛋");
-}
-
-recipes=[...new Set(recipes)];
-
-document.getElementById("recipes").innerHTML=
-recipes.map(r=>`<div class="item">${r}</div>`).join("");
-}
-
-function aiRecommend(){
-let names=items.map(i=>i.name).join(",");
-document.getElementById("aiResult").innerHTML=
-"👉 AI建議：可用 "+names+" 做創意料理（之後可接API）";
-}
+search.oninput=render;
 
 render();
 </script>
