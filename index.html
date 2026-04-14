@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>食材庫存小管家</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #111827;
+      --green: #16a34a;
+      --yellow: #ca8a04;
+      --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 20px 16px 32px;
+    }
+    .title {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 8px 0 6px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+    .row > * { min-width: 0; }
+    .input, .button, .select {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      font-size: 16px;
+    }
+    .button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .button.secondary {
+      background: #f3f4f6;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 6px 0 12px;
+    }
+    .item, .recipe {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .item-top, .recipe-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .name {
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .fresh { background: #ecfdf5; color: var(--green); }
+    .soon { background: #fef9c3; color: var(--yellow); }
+    .expired { background: #fee2e2; color: var(--red); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .chip {
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: #f3f4f6;
+      color: #374151;
+    }
+    .danger { color: var(--red); }
+    .ok { color: var(--green); }
+    .muted { color: var(--muted); }
+    .tiny { font-size: 12px; }
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .small-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .stat {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 24px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 18px 10px;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="title">🍱 食材庫存</div>
+    <div class="subtitle">記錄庫存、看保存期限、即時推薦可做食譜。</div>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="tiny muted">食材種類</div>
+        <div class="stat-num" id="stat-items">0</div>
+      </div>
+      <div class="stat">
+        <div class="tiny muted">快到期</div>
+        <div class="stat-num" id="stat-soon">0</div>
+      </div>
+      <div class="stat">
+        <div class="tiny muted">可參考食譜</div>
+        <div class="stat-num" id="stat-recipes">0</div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px;">
+      <div class="row" style="margin-bottom:10px;">
+        <input id="name" class="input" placeholder="食材名稱，例如：雞胸肉" />
+      </div>
+      <div class="row" style="margin-bottom:10px;">
+        <input id="qty" class="input" type="number" min="1" value="1" />
+        <input id="expiry" class="input" type="date" />
+      </div>
+      <div class="row">
+        <button id="addBtn" class="button">新增食材</button>
+        <button id="resetBtn" class="button secondary">重設範例</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">目前庫存</div>
+      <div id="items"></div>
+    </section>
+
+    <section>
+      <div class="section-title">🍳 推薦食譜</div>
+      <div id="recipes"></div>
+    </section>
+  </main>
+
+  <script>
+    const storageKey = 'food-inventory-fresh-start';
+
+    const demoItems = [
+      { id: 1, name: '雞胸肉', quantity: 2, expiryDate: '2026-04-20' },
+      { id: 2, name: '雞蛋', quantity: 5, expiryDate: '2026-04-18' },
+      { id: 3, name: '菠菜', quantity: 1, expiryDate: '2026-04-16' }
+    ];
+
+    const recipesDb = [
+      { id: 1, name: '雞肉炒蛋', ingredients: ['雞胸肉', '雞蛋'] },
+      { id: 2, name: '菠菜炒蛋', ingredients: ['菠菜', '雞蛋'] },
+      { id: 3, name: '奶油雞肉飯', ingredients: ['雞胸肉', '牛奶'] },
+      { id: 4, name: '菇菇炒雞肉', ingredients: ['雞胸肉', '杏鮑菇'] }
+    ];
+
+    let items = loadItems();
+
+    function loadItems() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        return saved ? JSON.parse(saved) : demoItems;
+      } catch {
+        return demoItems;
+      }
+    }
+
+    function saveItems() {
+      localStorage.setItem(storageKey, JSON.stringify(items));
+    }
+
+    function daysUntil(dateStr) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(dateStr);
+      target.setHours(0, 0, 0, 0);
+      return Math.round((target - today) / (1000 * 60 * 60 * 24));
+    }
+
+    function getStatus(expiryDate) {
+      const diff = daysUntil(expiryDate);
+      if (diff < 0) return { text: '已過期', className: 'expired' };
+      if (diff <= 2) return { text: '快到期', className: 'soon' };
+      return { text: '新鮮', className: 'fresh' };
+    }
+
+    function getRecommendedRecipes() {
+      return recipesDb
+        .map((recipe) => {
+          const matched = recipe.ingredients.filter((ing) =>
+            items.some((item) => item.name === ing)
+          );
+
+          const missing = recipe.ingredients.filter(
+            (ing) => !items.some((item) => item.name === ing)
+          );
+
+          let urgentScore = 0;
+          matched.forEach((ing) => {
+            const found = items.find((item) => item.name === ing);
+            if (!found) return;
+            if (daysUntil(found.expiryDate) <= 2) urgentScore += 1;
+          });
+
+          return {
+            ...recipe,
+            matched,
+            missing,
+            score: matched.length * 10 + urgentScore * 20,
+          };
+        })
+        .filter((recipe) => recipe.matched.length > 0)
+        .sort((a, b) => b.score - a.score);
+    }
+
+    function removeItem(id) {
+      items = items.filter((item) => item.id !== id);
+      saveItems();
+      render();
+    }
+
+    function renderItems() {
+      const wrap = document.getElementById('items');
+      if (!items.length) {
+        wrap.innerHTML = '<div class="empty">目前沒有食材</div>';
+        return;
+      }
+
+      wrap.innerHTML = items
+        .map((item) => {
+          const status = getStatus(item.expiryDate);
+          return `
+            <div class="item">
+              <div class="item-top">
+                <div>
+                  <div class="name">${item.name} × ${item.quantity}</div>
+                  <div class="meta">到期：${item.expiryDate}</div>
+                </div>
+                <div class="badge ${status.className}">${status.text}</div>
+              </div>
+              <div class="actions">
+                <button class="small-btn" onclick="removeItem(${item.id})">刪除</button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    function renderRecipes() {
+      const recipes = getRecommendedRecipes();
+      document.getElementById('stat-recipes').textContent = recipes.length;
+      const wrap = document.getElementById('recipes');
+      if (!recipes.length) {
+        wrap.innerHTML = '<div class="empty">目前沒有可參考食譜</div>';
+        return;
+      }
+
+      wrap.innerHTML = recipes
+        .map((recipe) => `
+          <div class="recipe">
+            <div class="recipe-top">
+              <div class="name">${recipe.name}</div>
+            </div>
+            <div class="chips">
+              <span class="chip ok">已有：${recipe.matched.length ? recipe.matched.join('、') : '無'}</span>
+              <span class="chip ${recipe.missing.length ? 'danger' : 'ok'}">缺少：${recipe.missing.length ? recipe.missing.join('、') : '無'}</span>
+            </div>
+          </div>
+        `).join('');
+    }
+
+    function renderStats() {
+      document.getElementById('stat-items').textContent = items.length;
+      document.getElementById('stat-soon').textContent = items.filter((item) => daysUntil(item.expiryDate) <= 2).length;
+    }
+
+    function render() {
+      renderStats();
+      renderItems();
+      renderRecipes();
+    }
+
+    document.getElementById('addBtn').addEventListener('click', () => {
+      const name = document.getElementById('name').value.trim();
+      const qty = Number(document.getElementById('qty').value || 1);
+      const expiry = document.getElementById('expiry').value;
+      if (!name || !expiry) return;
+
+      items.unshift({
+        id: Date.now(),
+        name,
+        quantity: qty,
+        expiryDate: expiry,
+      });
+
+      saveItems();
+      document.getElementById('name').value = '';
+      document.getElementById('qty').value = 1;
+      document.getElementById('expiry').value = '';
+      render();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      items = [...demoItems];
+      saveItems();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
