@@ -366,10 +366,15 @@
     }
 
     .bottom-nav {
-      position: sticky;
+      position: fixed;
+      left: 0;
+      right: 0;
       bottom: 0;
+      display: flex;
+      justify-content: center;
+      padding: 10px 16px 16px;
+      z-index: 20;
       background: transparent;
-      padding-top: 4px;
     }
 
     .bottom-inner {
@@ -889,6 +894,31 @@
     });
     document.querySelectorAll("#sortBar .chip").forEach((chip) => {
       chip.addEventListener("click", () => setSort(chip.dataset.sort));
+    });
+
+    // 👉 底部按鈕切換（修正不能點問題）
+    document.querySelectorAll('.nav-item').forEach((btn, index) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // 簡單切換顯示區塊
+        if(index === 0){
+          document.querySelectorAll('.section-card')[0].style.display = 'block';
+          document.querySelectorAll('.section-card')[1].style.display = 'block';
+          document.querySelectorAll('.section-card')[2].style.display = 'block';
+        }
+        if(index === 1){
+          document.querySelectorAll('.section-card')[0].style.display = 'none';
+          document.querySelectorAll('.section-card')[1].style.display = 'none';
+          document.querySelectorAll('.section-card')[2].style.display = 'block';
+        }
+        if(index === 2){
+          document.querySelectorAll('.section-card')[0].style.display = 'none';
+          document.querySelectorAll('.section-card')[1].style.display = 'block';
+          document.querySelectorAll('.section-card')[2].style.display = 'none';
+        }
+      });
     });
     document.getElementById("modalBackdrop").addEventListener("click", (e) => {
       if (e.target.id === "modalBackdrop") closeModal();
