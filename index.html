@@ -1,663 +1,153 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>食材庫存小管家</title>
-  <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --accent: #111827;
-      --green: #16a34a;
-      --yellow: #ca8a04;
-      --red: #dc2626;
-      --blue: #2563eb;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    .app {
-      max-width: 430px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding: 20px 16px 32px;
-    }
-    .title {
-      font-size: 34px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin: 8px 0 6px;
-    }
-    .subtitle {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 18px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-    .row {
-      display: flex;
-      gap: 10px;
-    }
-    .row > * { min-width: 0; }
-    .input, .button, .select {
-      width: 100%;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      padding: 12px 14px;
-      font-size: 16px;
-      background: white;
-    }
-    .button {
-      background: var(--accent);
-      color: white;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .button.secondary {
-      background: #f3f4f6;
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-    .section-title {
-      font-size: 22px;
-      font-weight: 800;
-      margin: 16px 0 12px;
-    }
-    .item, .recipe {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      margin-bottom: 10px;
-    }
-    .item-top, .recipe-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .name {
-      font-size: 18px;
-      font-weight: 800;
-    }
-    .meta {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 4px;
-      line-height: 1.5;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .fresh { background: #ecfdf5; color: var(--green); }
-    .soon { background: #fef9c3; color: var(--yellow); }
-    .expired { background: #fee2e2; color: var(--red); }
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-    }
-    .chip {
-      font-size: 12px;
-      border-radius: 999px;
-      padding: 5px 9px;
-      background: #f3f4f6;
-      color: #374151;
-    }
-    .danger { color: var(--red); }
-    .ok { color: var(--green); }
-    .muted { color: var(--muted); }
-    .tiny { font-size: 12px; }
-    .actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .small-btn {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 12px;
-      padding: 8px 10px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    .stat {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      text-align: center;
-    }
-    .stat-num {
-      font-size: 24px;
-      font-weight: 800;
-      margin-top: 4px;
-    }
-    .empty {
-      color: var(--muted);
-      text-align: center;
-      padding: 18px 10px;
-    }
-    .helper {
-      font-size: 12px;
-      color: var(--blue);
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>食材庫存App</title>
+
+<style>
+body{
+  font-family:-apple-system;
+  margin:0;
+  background:#f5f7fb;
+}
+.app{max-width:420px;margin:auto;padding:16px;}
+.title{font-size:28px;font-weight:800;margin-bottom:10px;}
+.card{background:#fff;padding:14px;border-radius:16px;margin-bottom:12px;}
+input,select,button{
+  width:100%;padding:10px;margin-top:6px;border-radius:10px;border:1px solid #ddd;
+}
+button{background:#111;color:#fff;border:none;font-weight:600;}
+.item{background:#fff;padding:12px;border-radius:12px;margin-bottom:8px;}
+.badge{font-size:12px;padding:4px 8px;border-radius:20px;}
+.green{background:#dcfce7;color:#16a34a;}
+.yellow{background:#fef9c3;color:#ca8a04;}
+.red{background:#fee2e2;color:#dc2626;}
+</style>
 </head>
+
 <body>
-  <main class="app">
-    <div class="title">🍱 食材庫存</div>
-    <div class="subtitle">不靠大資料庫，改用食材分類＋組合規則智慧推薦。</div>
+<div class="app">
 
-    <section class="stats">
-      <div class="stat">
-        <div class="tiny muted">食材種類</div>
-        <div class="stat-num" id="stat-items">0</div>
-      </div>
-      <div class="stat">
-        <div class="tiny muted">快到期</div>
-        <div class="stat-num" id="stat-soon">0</div>
-      </div>
-      <div class="stat">
-        <div class="tiny muted">建議食譜</div>
-        <div class="stat-num" id="stat-recipes">0</div>
-      </div>
-    </section>
+<div class="title">🍱 食材庫存</div>
 
-    <section class="card" style="margin-top:14px;">
-      <div class="row" style="margin-bottom:10px;">
-        <input id="name" class="input" placeholder="食材名稱，例如：蝦子、牛肉、花椰菜" />
-      </div>
-      <div class="row" style="margin-bottom:10px;">
-        <input id="qty" class="input" type="number" min="1" value="1" />
-        <input id="purchase" class="input" type="date" />
-      </div>
-      <div class="row" style="margin-bottom:10px;">
-        <input id="expiry" class="input" type="date" />
-        <select id="location" class="select">
-          <option value="冷藏">冷藏</option>
-          <option value="冷凍">冷凍</option>
-          <option value="常溫">常溫</option>
-        </select>
-      </div>
-      <div class="row">
-        <button id="addBtn" class="button">新增食材</button>
-        <button id="resetBtn" class="button secondary">重設範例</button>
-      </div>
-      <div class="helper">
-        會自動判斷食材類型，例如蝦子/雞胸肉→蛋白質，菠菜/高麗菜→蔬菜。
-      </div>
-    </section>
+<div class="card">
+<input id="name" placeholder="食材名稱">
+<input id="qty" type="number" value="1">
+<input id="purchase" type="date">
+<input id="expiry" type="date">
+<select id="location">
+<option>冷藏</option>
+<option>冷凍</option>
+<option>常溫</option>
+</select>
+<button onclick="addItem()">新增</button>
+</div>
 
-    <section>
-      <div class="section-title">目前庫存</div>
-      <div id="items"></div>
-    </section>
+<div id="list"></div>
 
-    <section>
-      <div class="section-title">🍳 智慧推薦食譜</div>
-      <div id="recipes"></div>
-    </section>
-  </main>
+<div class="title">🍳 推薦食譜</div>
+<div id="recipes"></div>
 
-  <script>
-    const storageKey = "food-inventory-smart-rules";
+<div class="card">
+<button onclick="aiRecommend()">✨ AI推薦（進階）</button>
+<div id="aiResult"></div>
+</div>
 
-    const demoItems = [
-      {
-        id: 1,
-        name: "雞胸肉",
-        quantity: 2,
-        purchaseDate: "2026-04-14",
-        expiryDate: "2026-04-20",
-        location: "冷藏"
-      },
-      {
-        id: 2,
-        name: "雞蛋",
-        quantity: 5,
-        purchaseDate: "2026-04-14",
-        expiryDate: "2026-04-18",
-        location: "冷藏"
-      },
-      {
-        id: 3,
-        name: "菠菜",
-        quantity: 1,
-        purchaseDate: "2026-04-14",
-        expiryDate: "2026-04-16",
-        location: "冷藏"
-      }
-    ];
+</div>
 
-    // 食材分類字典：不用超大資料庫，只要辨識類型
-    const ingredientTypeMap = {
-      // 蛋白質
-      "雞胸肉": "protein",
-      "雞腿肉": "protein",
-      "雞肉": "protein",
-      "牛肉": "protein",
-      "豬肉": "protein",
-      "里肌肉": "protein",
-      "絞肉": "protein",
-      "蝦子": "protein",
-      "蝦仁": "protein",
-      "魚": "protein",
-      "鮭魚": "protein",
-      "鯛魚": "protein",
-      "豆腐": "protein",
-      "板豆腐": "protein",
-      "嫩豆腐": "protein",
-      "雞蛋": "egg",
-      "蛋": "egg",
+<script>
+let items = JSON.parse(localStorage.getItem("data")||"[]");
 
-      // 蔬菜
-      "菠菜": "vegetable",
-      "高麗菜": "vegetable",
-      "花椰菜": "vegetable",
-      "青花菜": "vegetable",
-      "白菜": "vegetable",
-      "空心菜": "vegetable",
-      "青江菜": "vegetable",
-      "洋蔥": "vegetable",
-      "番茄": "vegetable",
-      "紅蘿蔔": "vegetable",
-      "胡蘿蔔": "vegetable",
-      "玉米筍": "vegetable",
-      "彩椒": "vegetable",
-      "小黃瓜": "vegetable",
-      "節瓜": "vegetable",
+function save(){
+localStorage.setItem("data",JSON.stringify(items));
+}
 
-      // 菇類
-      "杏鮑菇": "mushroom",
-      "香菇": "mushroom",
-      "鴻喜菇": "mushroom",
-      "金針菇": "mushroom",
-      "菇": "mushroom",
+function days(exp){
+return Math.floor((new Date(exp)-new Date())/(1000*60*60*24));
+}
 
-      // 主食
-      "白飯": "carb",
-      "飯": "carb",
-      "糙米飯": "carb",
-      "麵": "carb",
-      "義大利麵": "carb",
-      "吐司": "carb",
-      "冬粉": "carb",
+function status(exp){
+let d=days(exp);
+if(d<0) return "red";
+if(d<=2) return "yellow";
+return "green";
+}
 
-      // 奶/醬
-      "牛奶": "dairy",
-      "鮮奶": "dairy",
-      "起司": "dairy",
-      "奶油": "dairy",
+function addItem(){
+let name=document.getElementById("name").value;
+let qty=document.getElementById("qty").value;
+let purchase=document.getElementById("purchase").value;
+let expiry=document.getElementById("expiry").value;
+let location=document.getElementById("location").value;
 
-      // 調味
-      "蒜頭": "aromatic",
-      "蒜": "aromatic",
-      "蔥": "aromatic",
-      "薑": "aromatic"
-    };
+if(!name||!expiry)return;
 
-    let items = loadItems();
+items.push({id:Date.now(),name,qty,purchase,expiry,location});
+save();
+render();
+}
 
-    function loadItems() {
-      try {
-        const saved = localStorage.getItem(storageKey);
-        return saved ? JSON.parse(saved) : demoItems;
-      } catch {
-        return demoItems;
-      }
-    }
+function remove(id){
+items=items.filter(i=>i.id!==id);
+save();
+render();
+}
 
-    function saveItems() {
-      localStorage.setItem(storageKey, JSON.stringify(items));
-    }
+function render(){
+let list=document.getElementById("list");
 
-    function daysUntil(dateStr) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const target = new Date(dateStr);
-      target.setHours(0, 0, 0, 0);
-      return Math.round((target - today) / (1000 * 60 * 60 * 24));
-    }
+list.innerHTML=items.map(i=>`
+<div class="item">
+<b>${i.name} x ${i.qty}</b><br>
+購買:${i.purchase||"-"}<br>
+到期:${i.expiry}<br>
+位置:${i.location}
+<div class="badge ${status(i.expiry)}">${days(i.expiry)}天</div>
+<button onclick="remove(${i.id})">刪除</button>
+</div>
+`).join("");
 
-    function getStatus(expiryDate) {
-      const diff = daysUntil(expiryDate);
-      if (diff < 0) return { text: "已過期", className: "expired" };
-      if (diff <= 2) return { text: "快到期", className: "soon" };
-      return { text: "新鮮", className: "fresh" };
-    }
+renderRecipes();
+}
 
-    function detectIngredientType(name) {
-      if (ingredientTypeMap[name]) return ingredientTypeMap[name];
+function getType(name){
+if(name.includes("肉")||name.includes("雞")||name.includes("牛")||name.includes("豬")||name.includes("羊")||name.includes("蝦")||name.includes("魚")) return "protein";
+if(name.includes("蛋")) return "egg";
+if(name.includes("菜")||name.includes("瓜")) return "veg";
+return "other";
+}
 
-      // 模糊判斷
-      if (name.includes("雞") || name.includes("牛") || name.includes("豬") || name.includes("蝦") || name.includes("魚")) {
-        return "protein";
-      }
-      if (name.includes("蛋")) return "egg";
-      if (name.includes("菇")) return "mushroom";
-      if (
-        name.includes("菜") ||
-        name.includes("瓜") ||
-        name.includes("椒") ||
-        name.includes("蘿蔔") ||
-        name.includes("洋蔥") ||
-        name.includes("番茄")
-      ) {
-        return "vegetable";
-      }
-      if (name.includes("飯") || name.includes("麵") || name.includes("吐司") || name.includes("冬粉")) {
-        return "carb";
-      }
-      if (name.includes("奶") || name.includes("起司")) return "dairy";
-      if (name.includes("蒜") || name.includes("蔥") || name.includes("薑")) return "aromatic";
+function renderRecipes(){
+let recipes=[];
+let proteins=items.filter(i=>getType(i.name)=="protein");
+let eggs=items.filter(i=>getType(i.name)=="egg");
+let veg=items.filter(i=>getType(i.name)=="veg");
 
-      return "other";
-    }
+proteins.forEach(p=>{
+recipes.push(p.name+"炒蛋");
+recipes.push("香煎"+p.name);
+recipes.push(p.name+"炒青菜");
+});
 
-    function getItemsByType(type) {
-      return items.filter((item) => detectIngredientType(item.name) === type);
-    }
+if(eggs.length&&veg.length){
+recipes.push(veg[0].name+"炒蛋");
+}
 
-    function getUrgentScore(names) {
-      let score = 0;
-      names.forEach((name) => {
-        const found = items.find((item) => item.name === name);
-        if (found && daysUntil(found.expiryDate) <= 2) score += 1;
-      });
-      return score;
-    }
+recipes=[...new Set(recipes)];
 
-    function addRecipeResult(results, name, matched, missing, tags = []) {
-      if (matched.length === 0) return;
-      results.push({
-        name,
-        matched,
-        missing,
-        tags,
-        score: matched.length * 10 + getUrgentScore(matched) * 20 - missing.length * 3
-      });
-    }
+document.getElementById("recipes").innerHTML=
+recipes.map(r=>`<div class="item">${r}</div>`).join("");
+}
 
-    function getRecommendedRecipes() {
-      const proteins = getItemsByType("protein");
-      const eggs = getItemsByType("egg");
-      const vegetables = getItemsByType("vegetable");
-      const mushrooms = getItemsByType("mushroom");
-      const carbs = getItemsByType("carb");
-      const dairies = getItemsByType("dairy");
-      const aromatics = getItemsByType("aromatic");
+function aiRecommend(){
+let names=items.map(i=>i.name).join(",");
+document.getElementById("aiResult").innerHTML=
+"👉 AI建議：可用 "+names+" 做創意料理（之後可接API）";
+}
 
-      const results = [];
+render();
+</script>
 
-      // 規則：蛋白質 + 蛋
-      proteins.forEach((p) => {
-        addRecipeResult(
-          results,
-          `${p.name}炒蛋`,
-          [p.name, ...(eggs[0] ? [eggs[0].name] : [])],
-          eggs[0] ? [] : ["雞蛋"],
-          ["高蛋白", "快手"]
-        );
-      });
-
-      // 規則：蛋白質 + 蔬菜
-      proteins.forEach((p) => {
-        addRecipeResult(
-          results,
-          `${p.name}炒青菜`,
-          [p.name, ...(vegetables[0] ? [vegetables[0].name] : [])],
-          vegetables[0] ? [] : ["蔬菜"],
-          ["均衡", "家常"]
-        );
-      });
-
-      // 規則：蛋白質 + 菇
-      proteins.forEach((p) => {
-        addRecipeResult(
-          results,
-          `${p.name}炒菇`,
-          [p.name, ...(mushrooms[0] ? [mushrooms[0].name] : [])],
-          mushrooms[0] ? [] : ["菇類"],
-          ["鮮香", "家常"]
-        );
-      });
-
-      // 規則：蛋白質 + 主食
-      proteins.forEach((p) => {
-        addRecipeResult(
-          results,
-          `${p.name}燴飯`,
-          [p.name, ...(carbs[0] ? [carbs[0].name] : [])],
-          carbs[0] ? [] : ["白飯"],
-          ["主食", "飽足"]
-        );
-      });
-
-      // 規則：蛋白質 + 奶類
-      proteins.forEach((p) => {
-        addRecipeResult(
-          results,
-          `奶香${p.name}`,
-          [p.name, ...(dairies[0] ? [dairies[0].name] : [])],
-          dairies[0] ? [] : ["牛奶"],
-          ["濃郁", "變化版"]
-        );
-      });
-
-      // 規則：蛋白質單獨
-      proteins.forEach((p) => {
-        addRecipeResult(
-          results,
-          `香煎${p.name}`,
-          [p.name],
-          [],
-          ["簡單", "單品"]
-        );
-      });
-
-      // 規則：蛋 + 蔬菜
-      if (eggs.length > 0) {
-        addRecipeResult(
-          results,
-          `${vegetables[0] ? vegetables[0].name : "青菜"}炒蛋`,
-          [eggs[0].name, ...(vegetables[0] ? [vegetables[0].name] : [])],
-          vegetables[0] ? [] : ["蔬菜"],
-          ["快手", "便當菜"]
-        );
-      }
-
-      // 規則：蛋 + 菇
-      if (eggs.length > 0) {
-        addRecipeResult(
-          results,
-          `${mushrooms[0] ? mushrooms[0].name : "菇類"}歐姆蛋`,
-          [eggs[0].name, ...(mushrooms[0] ? [mushrooms[0].name] : [])],
-          mushrooms[0] ? [] : ["菇類"],
-          ["早餐", "軟嫩"]
-        );
-      }
-
-      // 規則：蛋白質 + 蒜香
-      if (proteins.length > 0) {
-        addRecipeResult(
-          results,
-          `蒜香${proteins[0].name}`,
-          [proteins[0].name, ...(aromatics[0] ? [aromatics[0].name] : [])],
-          aromatics[0] ? [] : ["蒜頭"],
-          ["香氣", "下飯"]
-        );
-      }
-
-      // 去重：同名只留分數最高
-      const deduped = [];
-      const map = new Map();
-      results.forEach((r) => {
-        if (!map.has(r.name) || map.get(r.name).score < r.score) {
-          map.set(r.name, r);
-        }
-      });
-      map.forEach((value) => deduped.push(value));
-
-      return deduped
-        .filter((r) => r.matched.length > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 12);
-    }
-
-    function removeItem(id) {
-      items = items.filter((item) => item.id !== id);
-      saveItems();
-      render();
-    }
-
-    function renderItems() {
-      const wrap = document.getElementById("items");
-      if (!items.length) {
-        wrap.innerHTML = '<div class="empty">目前沒有食材</div>';
-        return;
-      }
-
-      wrap.innerHTML = items
-        .map((item) => {
-          const status = getStatus(item.expiryDate);
-          const type = detectIngredientType(item.name);
-          const typeLabelMap = {
-            protein: "蛋白質",
-            egg: "蛋類",
-            vegetable: "蔬菜",
-            mushroom: "菇類",
-            carb: "主食",
-            dairy: "奶類",
-            aromatic: "辛香料",
-            other: "其他"
-          };
-
-          return `
-            <div class="item">
-              <div class="item-top">
-                <div>
-                  <div class="name">${item.name} × ${item.quantity}</div>
-                  <div class="meta">
-                    購買：${item.purchaseDate || "未填"}<br>
-                    到期：${item.expiryDate}<br>
-                    位置：${item.location} · 分類：${typeLabelMap[type]}
-                  </div>
-                </div>
-                <div class="badge ${status.className}">${status.text}</div>
-              </div>
-              <div class="actions">
-                <button class="small-btn" onclick="removeItem(${item.id})">刪除</button>
-              </div>
-            </div>
-          `;
-        })
-        .join("");
-    }
-
-    function renderRecipes() {
-      const recipes = getRecommendedRecipes();
-      document.getElementById("stat-recipes").textContent = recipes.length;
-      const wrap = document.getElementById("recipes");
-
-      if (!recipes.length) {
-        wrap.innerHTML = '<div class="empty">目前沒有可參考食譜</div>';
-        return;
-      }
-
-      wrap.innerHTML = recipes
-        .map((recipe) => `
-          <div class="recipe">
-            <div class="recipe-top">
-              <div class="name">${recipe.name}</div>
-              <div class="badge fresh">分數 ${recipe.score}</div>
-            </div>
-            <div class="chips">
-              <span class="chip ok">已有：${recipe.matched.length ? recipe.matched.join("、") : "無"}</span>
-              <span class="chip ${recipe.missing.length ? "danger" : "ok"}">缺少：${recipe.missing.length ? recipe.missing.join("、") : "無"}</span>
-              ${recipe.tags.map(tag => `<span class="chip">${tag}</span>`).join("")}
-            </div>
-          </div>
-        `)
-        .join("");
-    }
-
-    function renderStats() {
-      document.getElementById("stat-items").textContent = items.length;
-      document.getElementById("stat-soon").textContent = items.filter((item) => daysUntil(item.expiryDate) <= 2).length;
-    }
-
-    function render() {
-      renderStats();
-      renderItems();
-      renderRecipes();
-    }
-
-    document.getElementById("addBtn").addEventListener("click", () => {
-      const name = document.getElementById("name").value.trim();
-      const qty = Number(document.getElementById("qty").value || 1);
-      const purchaseDate = document.getElementById("purchase").value;
-      const expiryDate = document.getElementById("expiry").value;
-      const location = document.getElementById("location").value;
-
-      if (!name || !expiryDate) return;
-
-      items.unshift({
-        id: Date.now(),
-        name,
-        quantity: qty,
-        purchaseDate,
-        expiryDate,
-        location
-      });
-
-      saveItems();
-      document.getElementById("name").value = "";
-      document.getElementById("qty").value = 1;
-      document.getElementById("purchase").value = "";
-      document.getElementById("expiry").value = "";
-      document.getElementById("location").value = "冷藏";
-      render();
-    });
-
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      items = [...demoItems];
-      saveItems();
-      render();
-    });
-
-    render();
-  </script>
 </body>
 </html>
