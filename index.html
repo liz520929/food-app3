@@ -501,7 +501,7 @@
           <h1 class="title">食材庫存小管家</h1>
           <div class="subtitle">用手機快速記庫存、看保存期限、直接找能煮的菜。</div>
         </div>
-        <button class="fab" id="openModalBtn">+</button>
+        <button type="button" class="fab" id="openModalBtn">+</button>
       </div>
 
       <div class="chips">
@@ -511,8 +511,8 @@
       </div>
 
       <div class="hero-actions">
-        <button class="soft-btn" id="resetBtn">恢復範例資料</button>
-        <button class="soft-btn" id="clearBtn">清空全部</button>
+        <button type="button" class="soft-btn" id="resetBtn">恢復範例資料</button>
+        <button type="button" class="soft-btn" id="clearBtn">清空全部</button>
       </div>
 
       <div class="stats">
@@ -605,8 +605,8 @@
       </div>
 
       <div class="modal-actions">
-        <button class="modal-btn cancel" id="cancelBtn">取消</button>
-        <button class="modal-btn save" id="saveBtn">儲存食材</button>
+        <button type="button" class="modal-btn cancel" id="cancelBtn">取消</button>
+        <button type="button" class="modal-btn save" id="saveBtn">儲存食材</button>
       </div>
     </div>
   </div>
@@ -620,7 +620,7 @@
   </div>
 
   <script>
-    const storageKey = "food-inventory-ui-polished-v2";
+    const storageKey = "food-inventory-ui-polished-v3";
 
     const demoItems = [
       { id: 1, name: "雞胸肉", quantity: 2, purchaseDate: "2026-04-14", expiryDate: "2026-04-20", location: "冷藏" },
@@ -765,24 +765,43 @@
     function closeModal() {
       document.getElementById("modalBackdrop").classList.remove("show");
       editingId = null;
+      document.getElementById("name").value = "";
+      document.getElementById("qty").value = 1;
+      document.getElementById("purchase").value = "";
+      document.getElementById("expiry").value = "";
+      document.getElementById("location").value = "冷藏";
     }
 
     function saveForm() {
       const name = document.getElementById("name").value.trim();
       const qty = Number(document.getElementById("qty").value || 1);
-      const purchaseDate = document.getElementById("purchase").value;
-      const expiryDate = document.getElementById("expiry").value;
-      const location = document.getElementById("location").value;
-      if (!name || !expiryDate) return;
+      const purchaseDate = document.getElementById("purchase").value || "";
+      const expiryDate = document.getElementById("expiry").value || "";
+      const location = document.getElementById("location").value || "冷藏";
+
+      if (!name) {
+        alert("請輸入食材名稱");
+        return;
+      }
+
+      if (!expiryDate) {
+        alert("請選擇到期日");
+        return;
+      }
+
+      const payload = {
+        id: editingId || Date.now(),
+        name,
+        quantity: qty,
+        purchaseDate,
+        expiryDate,
+        location
+      };
 
       if (editingId) {
-        items = items.map((item) =>
-          item.id === editingId
-            ? { ...item, name, quantity: qty, purchaseDate, expiryDate, location }
-            : item
-        );
+        items = items.map((item) => item.id === editingId ? payload : item);
       } else {
-        items.unshift({ id: Date.now(), name, quantity: qty, purchaseDate, expiryDate, location });
+        items.unshift(payload);
       }
 
       saveItems();
@@ -906,8 +925,8 @@
               <div class="badge ${status.className}">${status.text}</div>
             </div>
             <div class="item-actions">
-              <button class="action-btn" onclick="editItem(${item.id})">編輯</button>
-              <button class="action-btn" onclick="removeItem(${item.id})">刪除</button>
+              <button type="button" class="action-btn" onclick="editItem(${item.id})">編輯</button>
+              <button type="button" class="action-btn" onclick="removeItem(${item.id})">刪除</button>
             </div>
           </div>
         `;
